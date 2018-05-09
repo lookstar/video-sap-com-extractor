@@ -2,10 +2,13 @@ package provider
 
 import (
 	"fmt"
+	"encoding/json"
+	"io/ioutil"
 	"crypto/tls"
 	"net/http"
 	"gopkg.in/headzoo/surf.v1"
-	"github.com/PuerkitoBio/goquery"
+	"github.com/headzoo/surf/browser"
+	//"github.com/PuerkitoBio/goquery"
 )
 
 type CollectorProvider struct {
@@ -13,11 +16,40 @@ type CollectorProvider struct {
 	Output     string
 }
 
+type Credential struct {
+	Username string
+	Password string
+}
+
 func NewCollectorProvider(url, output string) *CollectorProvider {
 	return &CollectorProvider{
 		Url:        url,
 		Output:     output,
 	}
+}
+
+func (p *CollectorProvider) ReadCredential() *Credential {
+	content, err := ioutil.ReadFile("./data/credential.json")
+	if err != nil {
+		fmt.Println("ReadCredential " + err.Error())
+		panic(err)
+	}
+	ret := &Credential{}
+	json.Unmarshal(content, ret)
+	return ret
+}
+
+func (p *CollectorProvider) handleMediaInitForm(bow *browser.Browser) error {
+	form, err := bow.Form("#logOnForm")
+	if err != nil {
+		return err
+	}
+
+	cred := p.ReadCredential()
+	form.Input("j_username", cred.Username)
+	form.Input("j_password", cred.Password)
+	err = form.Submit()
+	return err
 }
 
 func (p *CollectorProvider) DoWork() error {
@@ -42,9 +74,38 @@ func (p *CollectorProvider) DoWork() error {
 		panic(err)
 	}
 
-	bow.Find("form").Each(func(_ int, s *goquery.Selection){
-		fmt.Println(s.Attr("id"))
-	})
+	err = p.handleMediaInitForm(bow)
+	if err != nil {
+		panic(err)
+	}
+
+	if bow.Title() == "Error" {
+		bow.Back()
+		err = p.handleMediaInitForm(bow)
+		if err != nil {
+			panic(err)
+		}
+	}
+
+	form, err := bow.Form("#samlRedirect")
+	if err != nil {
+		panic(err)
+	}
+
+	err = form.Submit()
+	if err != nil {
+		panic(err)
+	}
+
+	fmt.Println(bow.Title())
+	
+	err = bow.Open("https://video.sap.com/media/t/1_q7ykdtqu#")
+	if err != nil {
+		panic(err)
+	}
+
+	fmt.Println(bow.Title())
 
 	return nil
 }
+
