@@ -1,0 +1,72 @@
+{
+	"ImportPath": "github.com/lookstar/video-sap-com-extractor",
+	"GoVersion": "go1.10",
+	"GodepVersion": "v79",
+	"Packages": [
+		"github.com/lookstar/video-sap-com-extractor/cmd"
+	],
+	"Deps": [
+		{
+			"ImportPath": "github.com/PuerkitoBio/goquery",
+			"Comment": "v1.1.0-13-gbc4e06e",
+			"Rev": "bc4e06eb0792d1a14661d19dd7822163c25bb6bd"
+		},
+		{
+			"ImportPath": "github.com/andybalholm/cascadia",
+			"Rev": "349dd0209470eabd9514242c688c403c0926d266"
+		},
+		{
+			"ImportPath": "github.com/headzoo/surf/agent",
+			"Comment": "v1.0.0-28-g362d364",
+			"Rev": "362d36475b4dc845ecdbb02e185a32f56a0c53d7"
+		},
+		{
+			"ImportPath": "github.com/headzoo/surf/browser",
+			"Comment": "v1.0.0-28-g362d364",
+			"Rev": "362d36475b4dc845ecdbb02e185a32f56a0c53d7"
+		},
+		{
+			"ImportPath": "github.com/headzoo/surf/errors",
+			"Comment": "v1.0.0-28-g362d364",
+			"Rev": "362d36475b4dc845ecdbb02e185a32f56a0c53d7"
+		},
+		{
+			"ImportPath": "github.com/headzoo/surf/jar",
+			"Comment": "v1.0.0-28-g362d364",
+			"Rev": "362d36475b4dc845ecdbb02e185a32f56a0c53d7"
+		},
+		{
+			"ImportPath": "github.com/headzoo/surf/util",
+			"Comment": "v1.0.0-28-g362d364",
+			"Rev": "362d36475b4dc845ecdbb02e185a32f56a0c53d7"
+		},
+		{
+			"ImportPath": "github.com/inconshreveable/mousetrap",
+			"Comment": "v1.0",
+			"Rev": "76626ae9c91c4f2a10f34cad8ce83ea42c93bb75"
+		},
+		{
+			"ImportPath": "github.com/spf13/cobra",
+			"Comment": "v0.0.1-20-gb95ab73",
+			"Rev": "b95ab734e27d33e0d8fbabf71ca990568d4e2020"
+		},
+		{
+			"ImportPath": "github.com/spf13/pflag",
+			"Comment": "v1.0.0-10-g4c012f6",
+			"Rev": "4c012f6dcd9546820e378d0bdda4d8fc772cdfea"
+		},
+		{
+			"ImportPath": "golang.org/x/net/html",
+			"Rev": "92447d55896d6f92b4a0d4fd83bd078b0374e8fa"
+		},
+		{
+			"ImportPath": "golang.org/x/net/html/atom",
+			"Rev": "92447d55896d6f92b4a0d4fd83bd078b0374e8fa"
+		},
+		{
+			"ImportPath": "gopkg.in/headzoo/surf.v1",
+			"Comment": "v1.0.0",
+			"Rev": "60198774ccce43e1d26c80e961497b7d262460b3"
+		}
+	]
+}
