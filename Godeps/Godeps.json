@@ -46,6 +46,34 @@
 			"Rev": "76626ae9c91c4f2a10f34cad8ce83ea42c93bb75"
 		},
 		{
+			"ImportPath": "github.com/robertkrimen/otto",
+			"Rev": "03d472dc43abece8691e609a23d295ab732abba6"
+		},
+		{
+			"ImportPath": "github.com/robertkrimen/otto/ast",
+			"Rev": "03d472dc43abece8691e609a23d295ab732abba6"
+		},
+		{
+			"ImportPath": "github.com/robertkrimen/otto/dbg",
+			"Rev": "03d472dc43abece8691e609a23d295ab732abba6"
+		},
+		{
+			"ImportPath": "github.com/robertkrimen/otto/file",
+			"Rev": "03d472dc43abece8691e609a23d295ab732abba6"
+		},
+		{
+			"ImportPath": "github.com/robertkrimen/otto/parser",
+			"Rev": "03d472dc43abece8691e609a23d295ab732abba6"
+		},
+		{
+			"ImportPath": "github.com/robertkrimen/otto/registry",
+			"Rev": "03d472dc43abece8691e609a23d295ab732abba6"
+		},
+		{
+			"ImportPath": "github.com/robertkrimen/otto/token",
+			"Rev": "03d472dc43abece8691e609a23d295ab732abba6"
+		},
+		{
 			"ImportPath": "github.com/spf13/cobra",
 			"Comment": "v0.0.1-20-gb95ab73",
 			"Rev": "b95ab734e27d33e0d8fbabf71ca990568d4e2020"
@@ -67,6 +95,16 @@
 			"ImportPath": "gopkg.in/headzoo/surf.v1",
 			"Comment": "v1.0.0",
 			"Rev": "60198774ccce43e1d26c80e961497b7d262460b3"
+		},
+		{
+			"ImportPath": "gopkg.in/sourcemap.v1",
+			"Comment": "v1.0.5",
+			"Rev": "6e83acea0053641eff084973fee085f0c193c61a"
+		},
+		{
+			"ImportPath": "gopkg.in/sourcemap.v1/base64vlq",
+			"Comment": "v1.0.5",
+			"Rev": "6e83acea0053641eff084973fee085f0c193c61a"
 		}
 	]
 }
