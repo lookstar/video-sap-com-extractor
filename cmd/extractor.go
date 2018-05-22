@@ -7,7 +7,7 @@ import (
 )
 
 func main() {
-	cmd := app.NewCommandRunCollector(os.Stdout, os.Stderr)
+	cmd := app.NewCommandRunCollector()
 	if err := cmd.Execute(); err != nil {
 		panic(err)
 	}

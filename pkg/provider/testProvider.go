@@ -12,11 +12,10 @@ import (
 	"os"
 	"io"
 	"runtime"
+	"github.com/streadway/amqp"
 )
 
 type CollectorProvider struct {
-	Url        string
-	Output     string
 }
 
 type Credential struct {
@@ -24,10 +23,8 @@ type Credential struct {
 	Password string	`json:"password"`
 }
 
-func NewCollectorProvider(url, output string) *CollectorProvider {
+func NewCollectorProvider() *CollectorProvider {
 	return &CollectorProvider{
-		Url:        url,
-		Output:     output,
 	}
 }
 
@@ -146,6 +143,19 @@ func (p *CollectorProvider) DoWork() error {
 	DownloadBody(&http.Client{Transport: p.getTr()}, targeturl, "c:\\download", "b.mp4")
 
 	return nil
+}
+
+func connectMQ() {
+	conn, err := amqp.Dial("amqp://guest:guest@localhost:5672/")
+	if err != nil {
+		panic(err)
+	}
+	defer conn.Close()
+
+	ch, err := conn.Channel()
+	defer ch.Close()
+	
+
 }
 
 func DownloadBody(client *http.Client, url, dir, filename string) error {
