@@ -12,6 +12,7 @@ import (
 	"os"
 	"io"
 	"runtime"
+	"strings"
 )
 
 type CollectorProvider struct {
@@ -27,6 +28,15 @@ func NewCollectorProvider(url string) *CollectorProvider {
 	return &CollectorProvider{
 		videoURL: url,
 	}
+}
+
+func (p *CollectorProvider) processUrl(url string) string {
+	// all sap video url looks like this: https://video.sap.com/media/t/1_q7ykdtqu#
+	parts := strings.Split(url, "/")
+	if len(parts) > 0 {
+		return strings.Trim(parts[len(parts)-1], "#")
+	}
+	return ""
 }
 
 func (p *CollectorProvider) ReadCredential() *Credential {
@@ -105,6 +115,8 @@ func (p *CollectorProvider) DoWork() error {
 		panic(err)
 	}
 
+	videoTitle := bow.Title()
+
 	selection := bow.Find("#player")
 	lastScript := selection.Find("script").Last()
 	vm := otto.New()
@@ -132,8 +144,15 @@ func (p *CollectorProvider) DoWork() error {
 	targeturl := fmt.Sprintf(urlPattern, entryId, ks)
 
 	fmt.Println(targeturl)
+	fmt.Println(videoTitle)
 
-	DownloadBody(&http.Client{Transport: p.getTr()}, targeturl, "/hypercd/demo/video", "b.mp4")
+	if runtime.GOOS == "windows" {
+		DownloadBody(&http.Client{Transport: p.getTr()}, targeturl, "c:\\download", p.processUrl(p.videoURL) + ".mp4")
+		ioutil.WriteFile("c:\\download\\" + p.processUrl(p.videoURL) + ".txt", []byte(videoTitle), 0655)
+	} else {
+		DownloadBody(&http.Client{Transport: p.getTr()}, targeturl, "/hypercd/demo/video", p.processUrl(p.videoURL) + ".mp4")
+		ioutil.WriteFile("/hypercd/demo/video/" + p.processUrl(p.videoURL) + ".txt", []byte(videoTitle), 0655)
+	}
 
 	return nil
 }
