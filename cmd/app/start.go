@@ -1,10 +1,12 @@
 package app
 
 import (
-	"github.com/lookstar/video-sap-com-extractor/pkg/provider"
+	//"github.com/lookstar/video-sap-com-extractor/pkg/collector"
+	"github.com/lookstar/video-sap-com-extractor/pkg/queue"
 	"github.com/spf13/cobra"
 	"os/exec"
 	"strings"
+	"fmt"
 )
 
 type DataCollectorOptions struct {
@@ -17,7 +19,10 @@ func NewCommandRunCollector() *cobra.Command {
 
 	cmdRoot := &cobra.Command{
 		Run: func(cmd *cobra.Command, args []string) {
-			option.RunMount()
+			err := option.RunMount()
+			if err != nil {
+				panic(err) 
+			}
 			option.RunDataCollector()
 		},
 	}
@@ -31,14 +36,11 @@ func (option *DataCollectorOptions) RunMount() error {
 	if strings.Contains(string(out), "already mounted") {
 		return nil
 	}
+	fmt.Println(err)
 	return err
 }
 
 func (option *DataCollectorOptions) RunDataCollector() {
-
-	provider := provider.NewCollectorProvider()
-
-	if err := provider.DoWork(); err != nil {
-		panic(err)
-	}
+	handler := queue.NewQueueHandler()
+	handler.Run()
 }

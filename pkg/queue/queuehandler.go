@@ -3,12 +3,23 @@ package queue
 import (
 	"github.com/streadway/amqp"
 	"log"
-	"time"
-	"bytes"
+	"fmt"
+	"github.com/lookstar/video-sap-com-extractor/pkg/collector"
+	"io/ioutil"
+	"encoding/json"
 )
 
 // it's a queue wrapper
 type QueueHandler struct {
+}
+
+type MQCredential struct {
+	URL string	`json:"url"`
+}
+
+func NewQueueHandler() *QueueHandler {
+	return &QueueHandler{
+	}
 }
 
 func failOnError(err error, msg string) {
@@ -17,8 +28,20 @@ func failOnError(err error, msg string) {
 	}
 }
 
+func (p *QueueHandler) ReadCredential() *MQCredential {
+	content, err := ioutil.ReadFile("./data/rabbitmq.json")
+	if err != nil {
+		fmt.Println("ReadCredential " + err.Error())
+		panic(err)
+	}
+	ret := &MQCredential{}
+	json.Unmarshal(content, ret)
+	return ret
+}
+
 func (p *QueueHandler) Run() {
-	conn, err := amqp.Dial("amqp://guest:guest@localhost:5672/")
+	mqCredential := p.ReadCredential()
+	conn, err := amqp.Dial(mqCredential.URL)
 	failOnError(err, "Failed to connect to RabbitMQ")
 	defer conn.Close()
 
@@ -27,7 +50,7 @@ func (p *QueueHandler) Run() {
 	defer ch.Close()
 
 	q, err := ch.QueueDeclare(
-		"task_queue", 
+		"video_queue", 
 		true, 
 		false,
 		false,
@@ -54,11 +77,19 @@ func (p *QueueHandler) Run() {
 	go func(){
 		for d := range msgs {
 			log.Printf("Received a message: %s", d.Body)
-			dot_count := bytes.Count(d.Body, []byte("."))
-			t := time.Duration(dot_count)
-			time.Sleep(t * time.Second)
-			log.Printf("Done")
-			d.Ack(false)
+			videoURL := string(d.Body)
+			fmt.Println(videoURL)
+			dataCollector := collector.NewCollectorProvider(videoURL)
+			err := dataCollector.DoWork()
+			if err != nil {
+				log.Printf("Error in %v %v", videoURL, err)
+				d.Nack(false, true)
+				log.Printf("Failed")
+				return
+			} else {
+				log.Printf("Done")
+				d.Ack(false)
+			}
 		}
 	}()
 

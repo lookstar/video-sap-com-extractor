@@ -1,4 +1,4 @@
-package provider
+package collector
 
 import (
 	"fmt"
@@ -12,10 +12,10 @@ import (
 	"os"
 	"io"
 	"runtime"
-	"github.com/streadway/amqp"
 )
 
 type CollectorProvider struct {
+	videoURL string
 }
 
 type Credential struct {
@@ -23,8 +23,9 @@ type Credential struct {
 	Password string	`json:"password"`
 }
 
-func NewCollectorProvider() *CollectorProvider {
+func NewCollectorProvider(url string) *CollectorProvider {
 	return &CollectorProvider{
+		videoURL: url,
 	}
 }
 
@@ -74,8 +75,6 @@ func (p *CollectorProvider) constructBrowser() *browser.Browser {
 }
 
 func (p *CollectorProvider) DoWork() error {
-	fmt.Println("hello world!\n")
-
 	bow := p.constructBrowser()
 	err := p.handleMediaInitForm(bow)
 	if err != nil {
@@ -101,11 +100,7 @@ func (p *CollectorProvider) DoWork() error {
 		panic(err)
 	}
 
-	fmt.Println(bow.Title())
-	
-	//part 2
-	//err = bow.Open("https://video.sap.com/media/t/1_4i0i6naj")
-	err = bow.Open("https://video.sap.com/media/t/1_1yr8abip")
+	err = bow.Open(p.videoURL)
 	if err != nil {
 		panic(err)
 	}
@@ -131,32 +126,18 @@ func (p *CollectorProvider) DoWork() error {
 	pdataMap := pdataInterface.(map[string]interface{})
 
 	entryId := pdataMap["entry_id"]
-	//fmt.Println(pdataMap["wid"])
 	ks := pdataMap["flashvars"].(map[string]interface{})["ks"].(string)
 
-	//part 3
 	urlPattern := "http://cdnapi.kaltura.com/p/1921661/sp/0/playManifest/entryId/%s/format/url/protocol/http/flavorParamId/301971/ks/%s/video.mp4"
 	targeturl := fmt.Sprintf(urlPattern, entryId, ks)
 
 	fmt.Println(targeturl)
 
-	DownloadBody(&http.Client{Transport: p.getTr()}, targeturl, "c:\\download", "b.mp4")
+	DownloadBody(&http.Client{Transport: p.getTr()}, targeturl, "/hypercd/demo/video", "b.mp4")
 
 	return nil
 }
 
-func connectMQ() {
-	conn, err := amqp.Dial("amqp://guest:guest@localhost:5672/")
-	if err != nil {
-		panic(err)
-	}
-	defer conn.Close()
-
-	ch, err := conn.Channel()
-	defer ch.Close()
-	
-
-}
 
 func DownloadBody(client *http.Client, url, dir, filename string) error {
 	os.MkdirAll(dir, os.ModePerm)

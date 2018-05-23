@@ -1,8 +1,6 @@
 package main
 
 import (
-	"os"
-
 	"github.com/lookstar/video-sap-com-extractor/cmd/app"
 )
 
