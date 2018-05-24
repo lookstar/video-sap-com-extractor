@@ -2,7 +2,6 @@ package collector
 
 import (
 	"fmt"
-	"encoding/json"
 	"io/ioutil"
 	"crypto/tls"
 	"net/http"
@@ -13,6 +12,9 @@ import (
 	"io"
 	"runtime"
 	"strings"
+	"github.com/gomodule/redigo/redis"
+	"strconv"
+	"encoding/json"
 )
 
 type CollectorProvider struct {
@@ -85,8 +87,28 @@ func (p *CollectorProvider) constructBrowser() *browser.Browser {
 }
 
 func (p *CollectorProvider) DoWork() error {
+	identification := p.processUrl(p.videoURL)
+
+	redisHost := os.Getenv("REDIS_URL")
+	redisPort, _ := strconv.Atoi(os.Getenv("REDIS_PORT"))
+	session, err := redis.Dial("tcp", redisHost, redis.DialDatabase(redisPort))
+	if err != nil {
+		fmt.Println("Connect to redis error", err)
+		return err
+	}
+	defer session.Close()
+
+	isDone, err := session.Do("GET", identification)
+	if err != nil {
+		return err
+	}
+	if isDone != nil {
+		fmt.Println(identification + " duplicated")
+		return nil
+	}
+
 	bow := p.constructBrowser()
-	err := p.handleMediaInitForm(bow)
+	err = p.handleMediaInitForm(bow)
 	if err != nil {
 		panic(err)
 	}
@@ -147,16 +169,17 @@ func (p *CollectorProvider) DoWork() error {
 	fmt.Println(videoTitle)
 
 	if runtime.GOOS == "windows" {
-		DownloadBody(&http.Client{Transport: p.getTr()}, targeturl, "c:\\download", p.processUrl(p.videoURL) + ".mp4")
-		ioutil.WriteFile("c:\\download\\" + p.processUrl(p.videoURL) + ".txt", []byte(videoTitle), 0655)
+		DownloadBody(&http.Client{Transport: p.getTr()}, targeturl, "c:\\download", identification + ".mp4")
+		ioutil.WriteFile("c:\\download\\" + identification + ".txt", []byte(videoTitle), 0655)
 	} else {
-		DownloadBody(&http.Client{Transport: p.getTr()}, targeturl, "/hypercd/demo/video", p.processUrl(p.videoURL) + ".mp4")
-		ioutil.WriteFile("/hypercd/demo/video/" + p.processUrl(p.videoURL) + ".txt", []byte(videoTitle), 0655)
+		DownloadBody(&http.Client{Transport: p.getTr()}, targeturl, "/hypercd/demo/video", identification + ".mp4")
+		ioutil.WriteFile("/hypercd/demo/video/" + identification + ".txt", []byte(videoTitle), 0655)
 	}
+
+	_, err = session.Do("SET", identification, "done")
 
 	return nil
 }
-
 
 func DownloadBody(client *http.Client, url, dir, filename string) error {
 	os.MkdirAll(dir, os.ModePerm)
