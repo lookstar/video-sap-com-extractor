@@ -1,0 +1,17 @@
+---
+apiVersion: extentions/v1beta1
+kind: Deployment
+metadata:
+  name: extractor
+  namespace: {{NAMESPACE}}
+  labels:
+    app: extractor
+spec:
+  replica: 1
+  selector:
+    matchLabels:
+      app: extractor
+    spec:
+      containers:
+        - name: extractor
+          image: hyper.cd/occ/ecloud-controller-manager:{{COMMIT}}

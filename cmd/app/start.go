@@ -7,6 +7,7 @@ import (
 	"os/exec"
 	"strings"
 	"fmt"
+	"os"
 )
 
 type DataCollectorOptions struct {
@@ -31,7 +32,8 @@ func NewCommandRunCollector() *cobra.Command {
 }
 
 func (option *DataCollectorOptions) RunMount() error {
-	cmd := exec.Command("mount", "-t", "nfs", "10.58.34.199:/hypercd", "/hypercd")
+	nfsHome := os.Getenv("NFS_HOME") // 10.58.34.199:/hypercd
+	cmd := exec.Command("mount", "-t", "nfs", nfsHome, "/hypercd")
 	out, err := cmd.CombinedOutput()
 	if strings.Contains(string(out), "already mounted") {
 		return nil

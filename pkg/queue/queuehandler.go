@@ -5,16 +5,11 @@ import (
 	"log"
 	"fmt"
 	"github.com/lookstar/video-sap-com-extractor/pkg/collector"
-	"io/ioutil"
-	"encoding/json"
+	"os"
 )
 
 // it's a queue wrapper
 type QueueHandler struct {
-}
-
-type MQCredential struct {
-	URL string	`json:"url"`
 }
 
 func NewQueueHandler() *QueueHandler {
@@ -28,7 +23,8 @@ func failOnError(err error, msg string) {
 	}
 }
 
-func (p *QueueHandler) ReadCredential() *MQCredential {
+func (p *QueueHandler) ReadCredential() string {
+	/*
 	content, err := ioutil.ReadFile("./data/rabbitmq.json")
 	if err != nil {
 		fmt.Println("ReadCredential " + err.Error())
@@ -36,12 +32,14 @@ func (p *QueueHandler) ReadCredential() *MQCredential {
 	}
 	ret := &MQCredential{}
 	json.Unmarshal(content, ret)
+	*/
+	ret := os.Getenv("MQ_URL")
 	return ret
 }
 
 func (p *QueueHandler) Run() {
-	mqCredential := p.ReadCredential()
-	conn, err := amqp.Dial(mqCredential.URL)
+	mqUrl := p.ReadCredential()
+	conn, err := amqp.Dial(mqUrl)
 	failOnError(err, "Failed to connect to RabbitMQ")
 	defer conn.Close()
 
